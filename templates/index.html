@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Traffic Sign Recognition</title>
+  
+</head>
+<style>
+body {
+    background-image: url("./c3.png");
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      margin: 0; /* Remove default body margin */
+      padding: 0; /* Remove default body padding */
+    }
+    .mt-5{
+      color: rgb(249, 249, 249);
+    }
+    #pre-stream-text {
+      font-size: 48px; /* Adjust font size as desired */
+      text-align: center;
+      margin-top: 200px; /* Adjust margin as desired */
+      color: rgb(233, 236, 12);
+    }
+
+    #video-container {
+      margin: 0 auto; /* Center video horizontally */
+      display: none; /* Initially hide the container */
+      border: 2px solid silver; /* Black border */
+      width: 640px; /* Adjust video width */
+      height: 480px; /* Adjust video height */
+      border-radius: 10px; /* Optional rounded corners */
+    }
+
+    #video_feed {
+      width: 100%; /* Fill entire video container */
+      height: 100%; /* Fill entire video container */
+    }
+
+    #controls {
+      display: flex;
+      justify-content: center;
+      margin-top: 10px; /* Margin below video container */
+      position: absolute; /* Position buttons below the video */
+      bottom: 10px; /* Position from bottom edge */
+      left: 50%; /* Center horizontally */
+      transform: translateX(-50%); /* Offset for centering */
+    }
+
+    button {
+      margin: 5px; /* Add space between buttons */
+      padding: 10px 20px; /* Set button padding */
+      border: none; /* Remove default border */
+      border-radius: 5px; /* Add rounded corners */
+      cursor: pointer; /* Change cursor to pointer on hover */
+    }
+    #start_button{
+      background-color: rgba(8, 231, 56, 0.886);
+      color: rgb(12, 12, 12);
+    }
+    #start_button:hover{
+    background-color: aliceblue;
+    color: rgb(9, 9, 9);
+    }
+    #stop_button{
+      background-color: rgba(231, 8, 8, 0.886);
+      color: rgb(12, 12, 12);
+      margin-left: 30%;
+    }
+    #stop_button:hover{
+    background-color: aliceblue;
+    color: rgb(9, 9, 9);
+
+}
+</style>
+<body>
+
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 offset-lg-2">
+        <center><h1 class="mt-5">Traffic Sign Recognition</h1></center>
+        <div id="pre-stream-text">Let's Start</div>
+        <div id="video-container">
+          <img id="video_feed" src="" alt="Video Feed">
+        </div>
+        <div id="controls">
+          <button id="start_button">Start</button>
+          <button id="stop_button" disabled>Stop</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const videoFeed = document.getElementById('video_feed');
+    const startButton = document.getElementById('start_button');
+    const stopButton = document.getElementById('stop_button');
+    const videoContainer = document.getElementById('video-container');
+
+    startButton.addEventListener('click', () => {
+      videoFeed.src = '/video_feed'; // Replace with actual route for video feed
+      videoFeed.style.display = 'block';
+      videoContainer.style.display = 'block';
+      document.getElementById('pre-stream-text').style.display = 'none';
+      startButton.disabled = true;
+      stopButton.disabled = false;
+    });
+
+    stopButton.addEventListener('click', () => {
+      videoFeed.src = "";
+      videoFeed.style.display = 'none';
+      videoContainer.style.display = 'none';
+      document.getElementById('pre-stream-text').style.display = 'block';
+      startButton.disabled = false;
+      stopButton.disabled = true;
+    });
+  </script>
+    
+</div>
+
+</body>
+
+</html>
