@@ -114,8 +114,8 @@ python-dateutil
 python-json-logger
 pyttsx3
 pytz
-pywin32
-pywinpty
+
+
 PyYAML
 pyzmq
 qtconsole
