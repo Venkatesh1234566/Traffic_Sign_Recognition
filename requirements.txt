@@ -8,3 +8,5 @@ numpy
 matplotlib
 seaborn
 gunicorn
+opencv-python-headless
+libgl1-mesa-glx
