@@ -1,8 +1,8 @@
-Keras
-Tensorflow
-OpenCv
-Sklearn
-Pandas
-Numpy
-Matplotlib
-Seaborn
+keras
+tensorflow
+opencv-python
+scikit-learn
+pandas
+numpy
+matplotlib
+seaborn
