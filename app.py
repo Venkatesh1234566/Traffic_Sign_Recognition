@@ -152,61 +152,71 @@ def getCalssName(classNo):
 
 
 
-# Initialize camera with index 1 (you can try different indices if needed)
-camera = cv2.VideoCapture(1)
-
 def gen_frames():
-    success, cap = camera.read()
+  global camera  # Assuming camera is a global variable (if needed)
 
-    if not success or cap is None:
-        # Handle camera initialization failure
-        print("Error: Could not open camera.")
-        return
+  camera = cv2.VideoCapture(0)  # Adjust the index if needed
 
-    rows, cols, _ = cap.shape
+  while True:
+    success, frame = camera.read()
 
-    while True:
-        ret, img = camera.read()
+    if not success:
+      # Handle camera errors gracefully
+      print("Error: Could not access camera")
+      break
 
-        img_bin = preprocess_img(img, False)
-        # cv2.imshow("bin image", img_bin)
-        min_area = img_bin.shape[0] * img.shape[1] / (25 * 25)
-        rects = contour_detect(img_bin, min_area=min_area)  # get x,y,h and w.
-        img_bbx = img.copy()
-        for rect in rects:
-            xc = int(rect[0] + rect[2] / 2)
-            yc = int(rect[1] + rect[3] / 2)
+    # Pre-processing for sign detection (optional, adjust as needed)
+    img_bin = preprocess_img(frame, False)  # Consider disabling erode/dilate
 
-            size = max(rect[2], rect[3])
-            x1 = max(0, int(xc - size / 2))
-            y1 = max(0, int(yc - size / 2))
-            x2 = min(cols, int(xc + size / 2))
-            y2 = min(rows, int(yc + size / 2))
+    # Detect potential traffic signs
+    min_area = frame.shape[0] * frame.shape[1] / (25 * 25)
+    rects = contour_detect(img_bin, min_area=min_area)  # Get x, y, h, and w
 
-            # rect[2] is width and rect[3] for height
-            if rect[2] > 100 and rect[3] > 100:  # only detect those signs whose height and width >100
-                cv2.rectangle(img_bbx, (rect[0], rect[1]), (rect[0] + rect[2], rect[1] + rect[3]), (0, 0, 255), 2)
-                crop_img = np.asarray(img[y1:y2, x1:x2])
-                crop_img = cv2.resize(crop_img, (32, 32))
-                crop_img = preprocessing(crop_img)
-                # cv2.imshow("afterprocessing", crop_img)
-                crop_img = crop_img.reshape(1, 32, 32, 1)  # (1,32,32) after reshape it becomes (1,32,32,1)
-                predictions = model.predict(crop_img)  # Make predictions
-                classIndex = np.argmax(predictions)  # Derive the class index with the highest probability
+    # Process detected signs
+    img_bbx = frame.copy()
+    for rect in rects:
+      xc = int(rect[0] + rect[2] / 2)
+      yc = int(rect[1] + rect[3] / 2)
 
-                probabilityValue = np.amax(predictions)  # Get the maximum probability
-                if probabilityValue > threshold:
-                    # Write class name on the output screen
-                    cv2.putText(img_bbx, str(classIndex) + " " + str(getCalssName(classIndex)), (rect[0], rect[1] - 10),
-                                font, 0.75, (0, 0, 255), 2, cv2.LINE_AA)
-                    # Write probability value on the output screen
-                    cv2.putText(img_bbx, str(round(probabilityValue * 100, 2)) + "%", (rect[0], rect[1] - 40), font, 0.75,
-                                (0, 0, 255), 2, cv2.LINE_AA)
+      size = max(rect[2], rect[3])
+      x1 = max(0, int(xc - size / 2))
+      y1 = max(0, int(yc - size / 2))
+      x2 = min(frame.shape[1], int(xc + size / 2))
+      y2 = min(frame.shape[0], int(yc + size / 2))
 
-        ret, buffer = cv2.imencode('.jpg', img_bbx)
-        img_bbx = buffer.tobytes()
-        yield (b'--img_bbx\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + img_bbx + b'\r\n')
+      # Only process signs with significant size
+      if rect[2] > 100 and rect[3] > 100:
+        cv2.rectangle(img_bbx, (rect[0], rect[1]), (rect[0] + rect[2], rect[1] + rect[3]), (0, 0, 255), 2)
+        crop_img = np.asarray(frame[y1:y2, x1:x2])
+
+        # Resize and pre-process for prediction
+        crop_img = cv2.resize(crop_img, (32, 32))
+        crop_img = preprocessing(crop_img)
+
+        # Reshape for model compatibility
+        crop_img = crop_img.reshape(1, 32, 32, 1)
+
+        # Prediction and class name retrieval
+        predictions = model.predict(crop_img)
+        classIndex = np.argmax(predictions)
+        probabilityValue = np.amax(predictions)
+
+        if probabilityValue > threshold:
+          cv2.putText(img_bbx, str(classIndex) + " " + str(getCalssName(classIndex)), (rect[0], rect[1] - 10),
+                      cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 0, 255), 2, cv2.LINE_AA)
+          cv2.putText(img_bbx, str(round(probabilityValue * 100, 2)) + "%", (rect[0], rect[1] - 40), cv2.FONT_HERSHEY_SIMPLEX, 0.75,
+                      (0, 0, 255), 2, cv2.LINE_AA)
+
+    # Encode frame for streaming
+    ret, buffer = cv2.imencode('.jpg', img_bbx)
+    img_bbx = buffer.tobytes()
+
+    yield (b'--img_bbx\r\n'
+           b'Content-Type: image/jpeg\r\n\r\n' + img_bbx + b'\r\n')
+
+  # Release the camera resource when finished
+  camera.release()
+
 
 @app.route('/')
 def index():
