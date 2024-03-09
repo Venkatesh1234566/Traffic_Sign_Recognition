@@ -109,7 +109,6 @@ PyAudio
 pycparser
 Pygments
 pyparsing
-pypiwin32
 referencing
 requests
 requests-oauthlib
