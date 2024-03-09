@@ -105,7 +105,6 @@ psutil
 pure-eval
 pyasn1
 pyasn1-modules
-PyAudio
 pycparser
 Pygments
 pyparsing
