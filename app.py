@@ -155,7 +155,7 @@ def getCalssName(classNo):
 def gen_frames():
   global camera  # Assuming camera is a global variable (if needed)
 
-  camera = cv2.VideoCapture(1)  # Adjust the index if needed
+  camera = cv2.VideoCapture(2)  # Adjust the index if needed
 
   while True:
     success, frame = camera.read()
